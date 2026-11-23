@@ -35,7 +35,17 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq osmium-tool
 
       - name: Download Lithuania extract (Geofabrik)
-        run: curl -sSfL --retry 4 --retry-delay 60 --retry-all-errors --connect-timeout 30 --max-time 240 --speed-limit 100000 --speed-time 60 -o lithuania.osm.pbf https://download.geofabrik.de/europe/lithuania-latest.osm.pbf
+        run: |
+          # «latest» у Geofabrik иногда ведёт на ещё не выложенный файл (23.11.2026: lithuania-261122 → 404),
+          # тогда берём последний доступный файл с датой из списка папки
+          base=https://download.geofabrik.de/europe/lithuania
+          get() { curl -sSfL --retry 2 --retry-delay 30 --retry-all-errors --connect-timeout 30 --max-time 240 --speed-limit 100000 --speed-time 60 -o lithuania.osm.pbf "$1"; }
+          if get "$base/lithuania-latest.osm.pbf"; then exit 0; fi
+          for f in $(curl -sSf --retry 3 "$base/" | grep -oE 'lithuania-[0-9]{6}\.osm\.pbf' | sort -ru | head -5); do
+            echo "::warning::lithuania-latest недоступен, пробую $f"
+            if get "$base/$f"; then exit 0; fi
+          done
+          exit 1
 
       - name: Cut Lithuania by its official border
         run: |
