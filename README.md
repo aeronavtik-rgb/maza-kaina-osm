@@ -23,12 +23,12 @@
 
 ## Настройка (один раз)
 
-Репозиторий: [aeronavtik-rgb/maza-kaina-osm](https://github.com/aeronavtik-rgb/maza-kaina-osm) (создан 21.11.2026).
+Репозиторий: [aeronavtik/maza-kaina-osm](https://github.com/aeronavtik/maza-kaina-osm) (создан 21.11.2026).
 
 1. Создайте на GitHub **публичный** репозиторий `maza-kaina-osm` и загрузите в него содержимое этой папки, включая `.github/`.
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 3. **Actions → OSM export → Run workflow** — первый запуск вручную (около 3 минут).
-4. Проверьте, что открывается `https://aeronavtik-rgb.github.io/maza-kaina-osm/meta.json`.
+4. Проверьте, что открывается `https://aeronavtik.github.io/maza-kaina-osm/meta.json`.
 
 Сайт ищет выгрузку по этому адресу сам (`OsmData::exportUrl`, настройка `stores.osm_export` его меняет). Пока
 адрес не отвечает, импорт идёт через Overpass раз в неделю; когда выгрузка появится — OSM обновляется каждую ночь.
