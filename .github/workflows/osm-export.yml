@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 40
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy3.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy1.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -77,7 +77,26 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: out
-      - id: deploy
+
+      # Сразу после загрузки GitHub не всегда видит артефакт («No artifacts named github-pages», 24.11.2026 — у Латвии и Эстонии),
+      # а сама публикация иногда падает («Deployment failed, try again later», 24.11.2026 — у Литвы): пауза и до трёх попыток
+      - name: Wait for the artifact
+        run: sleep 20
+      - id: deploy1
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - name: Pause before the second attempt
+        if: steps.deploy1.outcome == 'failure'
+        run: sleep 60
+      - id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - name: Pause before the third attempt
+        if: steps.deploy2.outcome == 'failure'
+        run: sleep 180
+      - id: deploy3
+        if: steps.deploy2.outcome == 'failure'
         uses: actions/deploy-pages@v5
 
       - name: Keep the schedule alive
